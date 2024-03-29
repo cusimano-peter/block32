@@ -33,14 +33,16 @@ app.get("/api/flavors", async (req, res, next) => {
 // GET a single flavor by id
 app.get("/api/flavors/:id", async (req, res, next) => {
   try {
-    const id = parseInt(req.params.id, 10); // Convert :id to integer
+    const id = req.params.id;
+    console.log("ID from URL:", req.params.id);
+    console.log("ID:", id, typeof id);
     const SQL = "SELECT * FROM flavors WHERE id = $1";
     const response = await client.query(SQL, [id]);
     console.log(response);
     if (response.rows.length === 0) {
       return res.status(404).send("Flavor not found");
     }
-    if (!id) {
+    if (isNaN(id)) {
       return res.status(400).send("Invalid ID format");
     }
     res.send(response.rows[0]);
@@ -67,7 +69,7 @@ app.post("/api/flavors", async (req, res, next) => {
 // DELETE a flavor by id
 app.delete("/api/flavors/:id", async (req, res, next) => {
   try {
-    const id = parseInt(req.params.id, 10); // Ensure id is an integer
+    const id = req.params.id;
     if (isNaN(id)) {
       return res.status(400).send("Invalid ID format");
     }
@@ -78,11 +80,11 @@ app.delete("/api/flavors/:id", async (req, res, next) => {
     next(ex);
   }
 });
-
+console.log("WHYYYYYYYY");
 // PUT (update) a flavor by id
 app.put("/api/flavors/:id", async (req, res, next) => {
+  console.log("NOOOOOOO");
   try {
-    const id = parseInt(req.params.id, 10); // Ensure id is an integer
     if (isNaN(id)) {
       return res.status(400).send("Invalid ID format");
     }
@@ -111,7 +113,7 @@ async function init() {
     let SQL = `
             DROP TABLE IF EXISTS flavors;
             CREATE TABLE flavors (
-                id SERIAL PRIMARY KEY,
+                id SERIAL PRIMARY KEY NOT NULL,
                 name VARCHAR(255) NOT NULL,
                 is_favorite BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
